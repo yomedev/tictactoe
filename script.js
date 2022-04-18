@@ -1,8 +1,8 @@
 const gameBoard = (() => {
     const gameboard = [
-        ['1', '2', '3'],
-        ['4', '5', '6'],
-        ['7', '8', '9']
+        ['!', '!', '!'],
+        ['!', '!', '!'],
+        ['!', '!', '!']
     ];
 
     const getBoard = () => [...gameboard];
@@ -39,7 +39,9 @@ const displayController = (() => {
     const gameStart = () => {
         document.querySelector('#startBtn').textContent = 'Restart Game';
         createPlayers();
+        gameBoard.clearBoard();
         displayBoard();
+        showMoveMessage();
     }
 
     const createPlayers = () => {
@@ -50,6 +52,16 @@ const displayController = (() => {
         playerOne = Player(firstPlayerName, firstPlayerMark);
         playerTwo = Player(secondPlayerName, secondPlayerMark);
         currentPlayer = playerOne;
+    }
+
+    const showMoveMessage = () => {
+        const messageDisplay = document.querySelector('#message');
+        messageDisplay.textContent = `${currentPlayer.getName()} Your Move.`;
+    }
+
+    const showWinnerMessage = () => {
+        const messageDisplay = document.querySelector('#message');
+        messageDisplay.textContent = `${currentPlayer.getName()} is Winner`;
     }
 
     const displayBoard = () => {
@@ -76,33 +88,42 @@ const displayController = (() => {
     const changeSpotMark = (e) => {
         gameBoard.changeBoard(e.target.getAttribute('data-row'), e.target.getAttribute('data-col'), currentPlayer.getMark());
         displayBoard();
-        gameOverCheck();
+        if (gameOverCheck()) {
+            showWinnerMessage();
+            return;
+        }
         changePlayer();
+        showMoveMessage();
     }
 
     const gameOverCheck = () => {
-        checkLineRow();
-        checkLineCol();
+        return checkLineRow() || checkLineCol() ? true : false;
     };
 
     const checkLineRow = () => {
+        let isLine = false;
         gameBoard.getBoard().forEach(item => {
             if (item.every(elem => elem === currentPlayer.getMark())) {
-                console.log('game over. full row.' + ' winner is ' + currentPlayer.getName());
+                isLine = true;
+                return;
             }
         })
+        return isLine;
     }
 
     const checkLineCol = () => {
+        let isLine = false;
         for (let i = 0; i < 3; i++) {
             let subArray = [];
             gameBoard.getBoard().forEach(item => {
                 subArray.push(item[i]);
             })
             if (subArray.every(elem => elem === currentPlayer.getMark())) {
-                console.log('game over. full col.' + ' winner is ' + currentPlayer.getName());
+                isLine = true;
+                return;
             }
         }
+        return isLine;
     }
 
     return { gameStart };
